@@ -1,13 +1,13 @@
 [package]
-name = "tree-sitter-sequel"
-description = "Tree-sitter Grammar for SQL"
-version = "0.3.11"
-authors = ["derek stride"]
+name = "tree-sitter-sequel-tsql"
+description = "Tree-sitter Grammar for SQL with T-SQL extensions (CREATE PROCEDURE, GO, EXEC)"
+version = "0.4.0"
+authors = ["derek stride", "jamie8johnson"]
 license = "MIT"
 readme = "README.md"
 keywords = ["incremental", "parsing", "tree-sitter", "sql"]
 categories = ["parsing", "text-editors"]
-repository = "https://github.com/derekstride/tree-sitter-sql.git"
+repository = "https://github.com/jamie8johnson/tree-sitter-sql.git"
 edition = "2021"
 autoexamples = false
 

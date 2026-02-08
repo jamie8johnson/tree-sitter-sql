@@ -1373,6 +1373,69 @@ export default grammar({
       ),
     ),
 
+    alter_procedure: $ => seq(
+      $.keyword_alter,
+      $.keyword_procedure,
+      $.object_reference,
+      optional($.function_arguments),
+      repeat(
+        choice(
+          $.function_language,
+          $.function_security,
+          $.function_safety,
+        ),
+      ),
+      $.function_body,
+      repeat(
+        choice(
+          $.function_language,
+          $.function_security,
+          $.function_safety,
+        ),
+      ),
+    ),
+
+    alter_function: $ => seq(
+      $.keyword_alter,
+      $.keyword_function,
+      $.object_reference,
+      $.function_arguments,
+      $.keyword_returns,
+      choice(
+        $._type,
+        seq($.keyword_setof, $._type),
+        seq($.keyword_table, $.column_definitions),
+        $.keyword_trigger,
+      ),
+      repeat(
+        choice(
+          $.function_language,
+          $.function_volatility,
+          $.function_leakproof,
+          $.function_security,
+          $.function_safety,
+          $.function_strictness,
+          $.function_cost,
+          $.function_rows,
+          $.function_support,
+        ),
+      ),
+      $.function_body,
+      repeat(
+        choice(
+          $.function_language,
+          $.function_volatility,
+          $.function_leakproof,
+          $.function_security,
+          $.function_safety,
+          $.function_strictness,
+          $.function_cost,
+          $.function_rows,
+          $.function_support,
+        ),
+      ),
+    ),
+
     _function_return: $ => seq(
       $.keyword_return,
       $._expression,
@@ -1862,6 +1925,8 @@ export default grammar({
         $.alter_role,
         $.alter_sequence,
         $.alter_policy,
+        $.alter_procedure,
+        $.alter_function,
       ),
     ),
 
