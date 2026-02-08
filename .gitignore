@@ -11,7 +11,7 @@ build
 package-lock.json
 /target/
 /.build/
-/src/*.json
+# /src/*.json - needed for Rust bindings (node-types.json)
 
 ## Generated Entries
 
