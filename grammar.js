@@ -49,13 +49,16 @@ export default grammar({
     program: $ => seq(
       // any number of transactions, statements, or blocks with a terminating ;
       repeat(
-        seq(
-          choice(
-            $.transaction,
-            $.statement,
-            $.block,
+        choice(
+          seq(
+            choice(
+              $.transaction,
+              $.statement,
+              $.block,
+            ),
+            ';',
           ),
-          ';',
+          $.go_statement,
         ),
       ),
       // optionally, a single statement without a terminating ;
@@ -63,6 +66,9 @@ export default grammar({
         $.statement,
       ),
     ),
+
+    // T-SQL batch separator (sqlcmd/SSMS directive, not a SQL keyword)
+    go_statement: _ => /[gG][oO]/,
 
     keyword_select: _ => make_keyword("select"),
     keyword_delete: _ => make_keyword("delete"),
@@ -340,6 +346,7 @@ export default grammar({
     keyword_referencing: _ => make_keyword("referencing"),
     keyword_statement: _ => make_keyword("statement"),
     keyword_execute: _ => make_keyword("execute"),
+    keyword_exec: _ => /[eE][xX][eE][cC]/,
     keyword_procedure: _ => make_keyword("procedure"),
     keyword_object_id: _ => make_keyword("object_id"),
 
@@ -711,8 +718,19 @@ export default grammar({
         $._dml_write,
         optional_parenthesis($._dml_read),
         $.while_statement,
+        $.execute_statement,
       ),
     ),
+
+    // T-SQL EXEC/EXECUTE procedure_name [args...]
+    execute_statement: $ => prec.left(seq(
+      choice($.keyword_execute, $.keyword_exec),
+      $.object_reference,
+      optional(comma_list(
+        field('parameter', $._expression),
+        true,
+      )),
+    )),
 
     while_statement: $ => prec.left(seq(
       $.keyword_while,
@@ -939,7 +957,7 @@ export default grammar({
       // TODO: operator (|class|family)
       // TODO: policy
       // TODO: (procedural) language
-      // TODO: procedure
+      seq($.keyword_procedure, $.object_reference),
       // TODO: publication
       seq($.keyword_role, $.identifier),
       // TODO: routine
@@ -1024,6 +1042,7 @@ export default grammar({
         $.create_materialized_view,
         $.create_index,
         $.create_function,
+        $.create_procedure,
         $.create_type,
         $.create_database,
         $.create_role,
@@ -1331,6 +1350,29 @@ export default grammar({
       ),
     ),
 
+    create_procedure: $ => seq(
+      $.keyword_create,
+      optional($._or_replace),
+      $.keyword_procedure,
+      $.object_reference,
+      optional($.function_arguments),
+      repeat(
+        choice(
+          $.function_language,
+          $.function_security,
+          $.function_safety,
+        ),
+      ),
+      $.function_body,
+      repeat(
+        choice(
+          $.function_language,
+          $.function_security,
+          $.function_safety,
+        ),
+      ),
+    ),
+
     _function_return: $ => seq(
       $.keyword_return,
       $._expression,
@@ -1363,14 +1405,14 @@ export default grammar({
       $.keyword_begin,
       optional($.var_declarations),
       choice(
-        repeat($.statement),
+        repeat(seq($.statement, optional(';'))),
         repeat1(seq(
           $.keyword_begin,
-          repeat($.statement),
+          repeat(seq($.statement, optional(';'))),
           $.keyword_end,
         )),
       ),
-      $._function_return,
+      optional($._function_return),
       $.keyword_end,
     ),
 
