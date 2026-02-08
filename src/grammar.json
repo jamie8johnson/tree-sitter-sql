@@ -21820,6 +21820,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "_bracket_quoted_identifier"
+        },
+        {
+          "type": "SYMBOL",
           "name": "_tsql_parameter"
         },
         {
@@ -21840,6 +21844,26 @@
           ]
         }
       ]
+    },
+    "_bracket_quoted_identifier": {
+      "type": "TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "["
+          },
+          {
+            "type": "PATTERN",
+            "value": "[A-Za-z_#][^\\]]*"
+          },
+          {
+            "type": "STRING",
+            "value": "]"
+          }
+        ]
+      }
     },
     "_tsql_parameter": {
       "type": "SEQ",
